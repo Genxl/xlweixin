@@ -3,6 +3,7 @@ package com.app.service;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -14,9 +15,12 @@ import org.apache.log4j.Logger;
 
 import sun.rmi.runtime.Log;
 
+import com.app.message.resp.Article;
+import com.app.message.resp.NewsMessage;
 import com.app.message.resp.TextMessage;
 import com.app.util.MessageUtil;
 import com.app.util.MySqlDB;
+import com.app.util.MyWeiXinUtil;
 import com.app.weather.Weather;
 
 /**
@@ -27,6 +31,7 @@ public class CoreService {
 	 * 处理微信发来的请求
 	 */
 	public static String processRequest(HttpServletRequest request){
+		MyWeiXinUtil mywxutil = new MyWeiXinUtil();
 		String respMessage = null;
 		
 		//默认返回的文本内容
@@ -53,7 +58,7 @@ public class CoreService {
             if (msgType.equals(MessageUtil.REQ_MESSAGE_TYPE_TEXT)) { 
 //            	respContent.setLength(0);
 //              respContent.append("您发送的是文本消息！"); 
-                if(!content.equals("1") || !content.equals("2") || !content.equals("3") || !content.endsWith("天气")){
+                if(!content.equals("1") || !content.equals("2") || !content.equals("3") || !content.endsWith("天气") || !mywxutil.isQqFace(content)){
                 	respContent.setLength(0);
                 	respContent.append("欢迎使用微信平台！");
                 	respContent.append("\r\n1、当前时间");
@@ -79,11 +84,45 @@ public class CoreService {
                 }
                 if(content.equals("2")){
                 	respContent.setLength(0);
-                	respContent.append("来首Music");
+                	
+                	//创建图文消息
+                	NewsMessage newsMessage = new NewsMessage();
+                	newsMessage.setToUserName(fromUserName);  
+                	newsMessage.setFromUserName(toUserName);  
+                	newsMessage.setCreateTime(new Date().getTime());  
+                	newsMessage.setMsgType(MessageUtil.RESP_MESSAGE_TYPE_NEWS);  
+                	newsMessage.setFuncFlag(0);
+                	
+                	//单图文
+                	List<Article> articleList = new ArrayList<Article>();
+                	Article article = new Article();
+                	
+                	article.setTitle("“支付宝”将成撬动阿里股价的杠杆");
+                	article.setDescription("未来，当上市的阿里巴巴已经亏损，或者濒临亏损，但通过关联交易，即可由小微金服这样的企业向其“输血”，使其当期经营业绩变为优良，从而来远程操纵其股票的涨幅。");
+                	article.setPicUrl("http://xlweixin.duapp.com/images/mayun.jpg");
+                	article.setUrl("http://chenlin.baijia.baidu.com/article/26182");
+                	articleList.add(article);
+                	
+                	// 设置图文消息个数  
+                    newsMessage.setArticleCount(articleList.size());  
+                    // 设置图文消息包含的图文集合  
+                    newsMessage.setArticles(articleList);  
+                    // 将图文消息对象转换成xml字符串  
+                    respMessage = MessageUtil.newsMessageToXml(newsMessage);
+                    return respMessage;
+                    
+                   //多图文
+//                  Article article1....n = new Article();
+//                  article1.......n.setTitle("“支付宝”将成撬动阿里股价的杠杆");
+//                	article1.......n.setDescription("未来，当上市的阿里巴巴已经亏损，或者濒临亏损，但通过关联交易，即可由小微金服这样的企业向其“输血”，使其当期经营业绩变为优良，从而来远程操纵其股票的涨幅。");
+//                	article1.......n.setPicUrl("http://xlweixin.duapp.com/images/mayun.jpg");
+//                	article1.......n.setUrl("http://chenlin.baijia.baidu.com/article/26182");
+//                	articleList.add(article1.......n);
+//                	respContent.append("开发中...");
                 }
                 if(content.equals("3")){
                 	respContent.setLength(0);
-                	respContent.append("开发中...");
+                	respContent.append("<a href=\"http://www.baidu.com\">来首Music</a>");
                 }
                 if(content.equals("4")){
                 	respContent.setLength(0);
@@ -110,6 +149,9 @@ public class CoreService {
         			}else{
         				respContent.append("对不起！没有您所查询的城市天气！");
         			}
+                }
+                if(mywxutil.isQqFace(content)){
+                	textMessage.setContent(content);
                 }
             }  
             // 图片消息  

@@ -86,10 +86,10 @@ public class Weather {
     	cal.add(Calendar.DAY_OF_YEAR, 0);
     	Date date = cal.getTime();
     	SimpleDateFormat sf = new SimpleDateFormat("yyyy年MM月dd日");
-    	buff = info.getString("city").toString()+" "+sf.format(date)+" "+getWeek(cal.get(Calendar.DAY_OF_WEEK))+"\n"
+    	buff = info.getString("city").toString()+"  "+sf.format(date)+"  "+getWeek(cal.get(Calendar.DAY_OF_WEEK))+"\n"
 //    		+"发布时间："+info.getString("fchh").toString()+"\n"
-    		+"天气："+info.getString("weather").toString()+"\n"
-    		+"温度："+info.getString("temp2").toString()+"~"+info.getString("temp1").toString();
+    		+"天气情况："+info.getString("weather").toString()+"\n"
+    		+"温     度："+info.getString("temp2").toString()+"~"+info.getString("temp1").toString();
     
 //        //得到1到6天的天气情况
 //        List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
