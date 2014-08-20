@@ -12,15 +12,19 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
+import org.aspectj.weaver.NewConstructorTypeMunger;
 
 import sun.rmi.runtime.Log;
 
 import com.app.message.resp.Article;
 import com.app.message.resp.NewsMessage;
 import com.app.message.resp.TextMessage;
+import com.app.news.getNews;
+import com.app.news.news;
 import com.app.util.MessageUtil;
 import com.app.util.MySqlDB;
 import com.app.util.MyWeiXinUtil;
+import com.app.util.newsChoice;
 import com.app.weather.Weather;
 
 /**
@@ -30,8 +34,8 @@ public class CoreService {
 	/**
 	 * 处理微信发来的请求
 	 */
+	Logger logger = Logger.getLogger(getClass());
 	public static String processRequest(HttpServletRequest request){
-		MyWeiXinUtil mywxutil = new MyWeiXinUtil();
 		String respMessage = null;
 		
 		//默认返回的文本内容
@@ -55,10 +59,19 @@ public class CoreService {
             textMessage.setFuncFlag(0);  
             
             //文本消息  
-            if (msgType.equals(MessageUtil.REQ_MESSAGE_TYPE_TEXT)) { 
+            if (msgType.equals(MessageUtil.REQ_MESSAGE_TYPE_TEXT)) {
+            	MyWeiXinUtil mywxutil = new MyWeiXinUtil();
 //            	respContent.setLength(0);
 //              respContent.append("您发送的是文本消息！"); 
-                if(!content.equals("1") || !content.equals("2") || !content.equals("3") || !content.endsWith("天气") || !mywxutil.isQqFace(content)){
+                if(!content.equals("1") || !content.equals("2") || !content.equals("3") || !content.endsWith("天气") || !mywxutil.isQqFace(content)
+                		|| !content.equals("A")||!content.equals("a")
+                		|| !content.equals("B")||!content.equals("b")
+                		|| !content.equals("C")||!content.equals("c")
+                		|| !content.equals("D")||!content.equals("d")
+                		|| !content.equals("E")||!content.equals("e")
+                		|| !content.equals("F")||!content.equals("f")
+                		|| !content.equals("G")||!content.equals("g")
+                		|| !content.equals("H")||!content.equals("h")){
                 	respContent.setLength(0);
                 	respContent.append("欢迎使用微信平台！");
                 	respContent.append("\r\n1、当前时间");
@@ -84,9 +97,14 @@ public class CoreService {
                 }
                 if(content.equals("2")){
                 	respContent.setLength(0);
+                	respContent.append("看什么我做主！请直接回复字母");
+                	respContent.append("\r\n A、国内新闻\t B、国际新闻");
+                	respContent.append("\r\n C、经济新闻\t D、社会新闻");
+                	respContent.append("\r\n E、娱乐新闻\t F、体育新闻");
+                	respContent.append("\r\n G、感悟人生\t H、轻松时刻");
                 	
                 	//创建图文消息
-                	NewsMessage newsMessage = new NewsMessage();
+                	/*NewsMessage newsMessage = new NewsMessage();
                 	newsMessage.setToUserName(fromUserName);  
                 	newsMessage.setFromUserName(toUserName);  
                 	newsMessage.setCreateTime(new Date().getTime());  
@@ -95,13 +113,36 @@ public class CoreService {
                 	
                 	//单图文
                 	List<Article> articleList = new ArrayList<Article>();
-                	Article article = new Article();
+                	Article[] article = new Article[4];
                 	
-                	article.setTitle("“支付宝”将成撬动阿里股价的杠杆");
-                	article.setDescription("未来，当上市的阿里巴巴已经亏损，或者濒临亏损，但通过关联交易，即可由小微金服这样的企业向其“输血”，使其当期经营业绩变为优良，从而来远程操纵其股票的涨幅。");
-                	article.setPicUrl("http://xlweixin.duapp.com/images/mayun.jpg");
-                	article.setUrl("http://chenlin.baijia.baidu.com/article/26182");
-                	articleList.add(article);
+                	getNews news = new getNews();
+                	List<news> list = news.getNews("1");
+//                	article[0] = new Article();
+//            		article[0].setTitle(list.get(0).getTitle());
+//            		article[0].setDescription("");
+//            		article[0].setPicUrl(list.get(0).getPicurl());
+//            		article[0].setUrl(list.get(0).getUrl());
+//            		articleList.add(article[0]);
+//            		
+//            		article[1] = new Article();
+//            		article[1].setTitle(list.get(1).getTitle());
+//            		article[1].setDescription("");
+//            		article[1].setPicUrl(list.get(1).getPicurl());
+//            		article[1].setUrl(list.get(1).getUrl());
+//            		articleList.add(article[1]);
+                	for(int i=0;i<list.size();i++){
+                		article[i] = new Article();
+                		article[i].setTitle(list.get(i).getTitle());
+                		article[i].setDescription("");
+                		article[i].setPicUrl(list.get(i).getPicurl());
+                		article[i].setUrl(list.get(i).getUrl());
+                		articleList.add(article[i]);
+                	}
+//                	article.setTitle("“支付宝”将成撬动阿里股价的杠杆");
+//                	article.("未来，当上市的阿里巴巴已经亏损，或者濒临亏损，但通过关联交易，即可由小微金服这样的企业向其“输血”，使其当期经营业绩变为优良，从而来远程操纵其股票的涨幅。");
+//                	article.setPicUrl("http://pan.baidu.com/s/1jGxGgvk");
+//                	article.setUrl("http://chenlin.baijia.baidu.com/article/26182");
+//                	articleList.add(article);
                 	
                 	// 设置图文消息个数  
                     newsMessage.setArticleCount(articleList.size());  
@@ -109,9 +150,9 @@ public class CoreService {
                     newsMessage.setArticles(articleList);  
                     // 将图文消息对象转换成xml字符串  
                     respMessage = MessageUtil.newsMessageToXml(newsMessage);
-                    return respMessage;
+                    return respMessage;*/
                     
-                   //多图文
+                    //多图文
 //                  Article article1....n = new Article();
 //                  article1.......n.setTitle("“支付宝”将成撬动阿里股价的杠杆");
 //                	article1.......n.setDescription("未来，当上市的阿里巴巴已经亏损，或者濒临亏损，但通过关联交易，即可由小微金服这样的企业向其“输血”，使其当期经营业绩变为优良，从而来远程操纵其股票的涨幅。");
@@ -152,6 +193,19 @@ public class CoreService {
                 }
                 if(mywxutil.isQqFace(content)){
                 	textMessage.setContent(content);
+                }
+                
+                if(content.equals("A")||content.equals("a")
+                		||content.equals("B")||content.equals("B")
+                		||content.equals("C")||content.equals("c")
+                		||content.equals("D")||content.equals("d")
+                		||content.equals("E")||content.equals("e")
+                		||content.equals("F")||content.equals("f")
+                		||content.equals("G")||content.equals("g")
+                		||content.equals("H")||content.equals("h")){
+                	newsChoice newschoice = new newsChoice();
+                	respMessage = newschoice.getNewsChoose(content, fromUserName, toUserName);
+                	return respMessage;
                 }
             }  
             // 图片消息  

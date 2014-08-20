@@ -14,16 +14,17 @@ public class MySqlDB {
 	  private ResultSet rs = null;  
 	  /**
 	   * 构造函数，在这里我们完成数据库的初始华操作，即连接数据库操作
+	   * http://xlweixin.duapp.com/coreServlet
 	   * */
 	  public MySqlDB() throws SQLException,ClassNotFoundException{
 	    try
 	    {
-//	      String url="jdbc:mysql://localhost:3306/weathercode";
-//	      Class.forName("com.mysql.jdbc.Driver");
-//	      conn = DriverManager.getConnection(url,"root","");
-	    	String url="jdbc:mysql://sqld.duapp.com:4050/lrWMaGIxwLIaYldaNDbk";
-		    Class.forName("com.mysql.jdbc.Driver");
-		    conn = DriverManager.getConnection(url,"4EUWLRo9arSzSO3PY1YCpi4Q","Sj695uxdAT9oe0E8tjeu5NUy6dBdc3rR");
+	    	String url="jdbc:mysql://localhost:3306/weathercode";
+	    	Class.forName("com.mysql.jdbc.Driver");
+	    	conn = DriverManager.getConnection(url,"root","");
+//	    	String url="jdbc:mysql://sqld.duapp.com:4050/lrWMaGIxwLIaYldaNDbk";
+//		    Class.forName("com.mysql.jdbc.Driver");
+//		    conn = DriverManager.getConnection(url,"4EUWLRo9arSzSO3PY1YCpi4Q","Sj695uxdAT9oe0E8tjeu5NUy6dBdc3rR");
 		    stmt = conn.createStatement();
 	    }
 	    catch(SQLException e)

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE struts PUBLIC  
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"  
+    "http://struts.apache.org/dtds/struts-2.0.dtd">  
+<struts>  
+    <constant name="struts.devMode" value="false" />  
+    <!-- 改变struts2默认为2M的上传文件大小限制 -->  
+    <constant name="struts.multipart.maxSize" value="10240000"/>  
+    <package name="upload" extends="struts-default">  
+        <action name="uploadFile" class="com.app.action.adminUpload">
+        	<result name="success">adminUpload.jsp</result>
+        </action>
+    </package>  
+</struts>  
