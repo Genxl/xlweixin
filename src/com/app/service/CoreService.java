@@ -3,24 +3,15 @@ package com.app.service;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
-import org.aspectj.weaver.NewConstructorTypeMunger;
 
-import sun.rmi.runtime.Log;
-
-import com.app.message.resp.Article;
-import com.app.message.resp.NewsMessage;
 import com.app.message.resp.TextMessage;
-import com.app.news.getNews;
-import com.app.news.news;
 import com.app.util.MessageUtil;
 import com.app.util.MySqlDB;
 import com.app.util.MyWeiXinUtil;
@@ -78,6 +69,7 @@ public class CoreService {
                 	respContent.append("\r\n2、看图文");
                 	respContent.append("\r\n3、听音乐");
                 	respContent.append("\r\n4、查天气");
+                	respContent.append("\r\n5、人脸检测");
                 	respContent.append("\r\n其他、请直接输入文字信息");
                 }
                 if(content.equals("1")){
@@ -171,6 +163,12 @@ public class CoreService {
                 	respContent.append("\r\n回复：城市名称+天气");
                 	respContent.append("\r\n例如：新会天气");
                 }
+                if(content.equals("5")){
+                	respContent.setLength(0);
+                	respContent.append("人脸检测使用指南").append("\n\n");  
+                	respContent.append("发送一张清晰的照片，就能帮你分析出种族、年龄、性别等信息").append("\n");  
+                	respContent.append("赶紧来试试吧");  
+                }
                 if(content.endsWith("天气")){
                 	respContent.setLength(0);
                 	String citycode = null;
@@ -211,7 +209,11 @@ public class CoreService {
             // 图片消息  
             else if (msgType.equals(MessageUtil.REQ_MESSAGE_TYPE_IMAGE)) {
             	respContent.setLength(0);
-                respContent.append("您发送的是图片消息！");  
+//                respContent.append("您发送的是图片消息！");
+            	// 取得图片地址  
+                String picUrl = requestMap.get("PicUrl");  
+                // 人脸检测  
+                respContent.append(FaceService.detect(picUrl));  
             }  
             // 地理位置消息  
             else if (msgType.equals(MessageUtil.REQ_MESSAGE_TYPE_LOCATION)) {
