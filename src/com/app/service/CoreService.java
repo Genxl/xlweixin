@@ -15,6 +15,7 @@ import com.app.message.resp.TextMessage;
 import com.app.util.MessageUtil;
 import com.app.util.MySqlDB;
 import com.app.util.MyWeiXinUtil;
+import com.app.util.WeiXinTime;
 import com.app.util.newsChoice;
 import com.app.weather.Weather;
 
@@ -63,9 +64,11 @@ public class CoreService {
                 		|| !content.equals("F")||!content.equals("f")
                 		|| !content.equals("G")||!content.equals("g")
                 		|| !content.equals("H")||!content.equals("h")){
+                	WeiXinTime wxt = new WeiXinTime();
                 	respContent.setLength(0);
-                	respContent.append("欢迎使用微信平台！");
-                	respContent.append("\r\n1、当前时间");
+                	respContent.append("欢迎使用XL的微信公众平台！");
+                	respContent.append("\r\n"+wxt.getTime());
+                	respContent.append("\r\n1、冷笑话");
                 	respContent.append("\r\n2、看图文");
                 	respContent.append("\r\n3、听音乐");
                 	respContent.append("\r\n4、查天气");
@@ -73,19 +76,19 @@ public class CoreService {
                 	respContent.append("\r\n其他、请直接输入文字信息");
                 }
                 if(content.equals("1")){
-                	respContent.setLength(0);
-                	String[] weekDays = {"星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"}; 
-                    Calendar cal = Calendar.getInstance(); 
-                    cal.setTime(new Date()); 
-
-                    int w = cal.get(Calendar.DAY_OF_WEEK) - 1; 
-                    if (w < 0){
-                    	w = 0; 
-                    } 
-                	SimpleDateFormat nowtime=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); 
-                	respContent.append("当前时间："+nowtime.format(new Date()));
-                	respContent.append("\r\n");
-                	respContent.append("今天是："+weekDays[w]);
+//                	respContent.setLength(0);
+//                	String[] weekDays = {"星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"}; 
+//                    Calendar cal = Calendar.getInstance(); 
+//                    cal.setTime(new Date()); 
+//
+//                    int w = cal.get(Calendar.DAY_OF_WEEK) - 1; 
+//                    if (w < 0){
+//                    	w = 0; 
+//                    } 
+//                	SimpleDateFormat nowtime=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); 
+//                	respContent.append("当前时间："+nowtime.format(new Date()));
+//                	respContent.append("\r\n");
+//                	respContent.append("今天是："+weekDays[w]);
                 }
                 if(content.equals("2")){
                 	respContent.setLength(0);
@@ -237,7 +240,7 @@ public class CoreService {
                 // 订阅  
                 if (eventType.equals(MessageUtil.EVENT_TYPE_SUBSCRIBE)) { 
                 	respContent.setLength(0);
-                    respContent.append("谢谢您的关注！");  
+                    respContent.append("快乐要懂得分享，才能加倍的快乐");  
                 }  
                 // 取消订阅  
                 else if (eventType.equals(MessageUtil.EVENT_TYPE_UNSUBSCRIBE)) {  

@@ -26,6 +26,7 @@ public class FaceService {
 	private static String httpRequest(String requestUrl){
 		StringBuffer buffer = new StringBuffer();
 		try {
+//			System.out.println("*****************"+requestUrl);
 			URL url = new URL(requestUrl);
 			HttpURLConnection httpUrlConn = (HttpURLConnection) url.openConnection();  
             httpUrlConn.setDoInput(true);  
@@ -69,7 +70,7 @@ public class FaceService {
 		}  
         queryUrl = queryUrl.replace("API_KEY", "620f3a06fa4cab422d99b81bf113105e");  
         queryUrl = queryUrl.replace("API_SECRET", "VHk7xQIEen2AEIOy55uw_Yk5Y3ak-6iE");
-     // 调用人脸检测接口  
+        // 调用人脸检测接口  
         String json = httpRequest(queryUrl);  
         // 解析返回json中的Face列表  
         JSONArray jsonArray = JSONObject.fromObject(json).getJSONArray("face");  
@@ -204,9 +205,9 @@ public class FaceService {
      */  
     public static String detect(String picUrl) {  
         // 默认回复信息  
-        String result = "未识别到人脸，请换一张清晰的照片再试！";  
+    	String result = "未识别到人脸，请换一张清晰的照片再试！\r\n或者尝试把照片旋转";  
         List<Face> faceList = faceDetect(picUrl);  
-        if (null != faceList) {  
+        if (!faceList.isEmpty()) {  
             result = makeMessage(faceList);  
         }  
         return result;
