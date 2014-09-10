@@ -14,7 +14,11 @@ public class Face implements Comparable<Face> {
     // 人种：Asian/White/Black  
     private String raceValue;  
     // 人种分析的可信度  
-    private double raceConfidence;  
+    private double raceConfidence;
+    // 眼镜：glass  
+    private String glassValue;  
+    // 是否戴有眼镜分析的可信度  
+    private double glassConfidence;
     // 微笑程度  
     private double smilingValue;  
     // 人脸框的中心点坐标  
@@ -75,6 +79,22 @@ public class Face implements Comparable<Face> {
 
 	public void setRaceConfidence(double raceConfidence) {
 		this.raceConfidence = raceConfidence;
+	}
+
+	public String getGlassValue() {
+		return glassValue;
+	}
+
+	public void setGlassValue(String glassValue) {
+		this.glassValue = glassValue;
+	}
+
+	public double getGlassConfidence() {
+		return glassConfidence;
+	}
+
+	public void setGlassConfidence(double glassConfidence) {
+		this.glassConfidence = glassConfidence;
 	}
 
 	public double getSmilingValue() {

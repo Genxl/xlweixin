@@ -59,12 +59,12 @@ public class newsChoice {
         		article[i].setPicUrl(list.get(i).getPicurl());
         		article[i].setUrl(list.get(i).getUrl());
         		articleList.add(article[i]);
-        		// 设置图文消息个数  
-                newsMessage.setArticleCount(articleList.size());  
-                // 设置图文消息包含的图文集合  
-                newsMessage.setArticles(articleList);  
-        		respMessage = MessageUtil.newsMessageToXml(newsMessage);
         	}
+			// 设置图文消息个数  
+            newsMessage.setArticleCount(articleList.size());  
+            // 设置图文消息包含的图文集合  
+            newsMessage.setArticles(articleList);  
+    		respMessage = MessageUtil.newsMessageToXml(newsMessage);
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

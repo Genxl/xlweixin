@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
 
+import com.app.laughing.LaughingService;
 import com.app.message.resp.TextMessage;
 import com.app.util.MessageUtil;
 import com.app.util.MySqlDB;
@@ -76,19 +77,9 @@ public class CoreService {
                 	respContent.append("\r\n其他、请直接输入文字信息");
                 }
                 if(content.equals("1")){
-//                	respContent.setLength(0);
-//                	String[] weekDays = {"星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"}; 
-//                    Calendar cal = Calendar.getInstance(); 
-//                    cal.setTime(new Date()); 
-//
-//                    int w = cal.get(Calendar.DAY_OF_WEEK) - 1; 
-//                    if (w < 0){
-//                    	w = 0; 
-//                    } 
-//                	SimpleDateFormat nowtime=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); 
-//                	respContent.append("当前时间："+nowtime.format(new Date()));
-//                	respContent.append("\r\n");
-//                	respContent.append("今天是："+weekDays[w]);
+                	respContent.setLength(0);
+                	LaughingService laughing = new LaughingService();
+                	respContent.append(laughing.getLaugh());
                 }
                 if(content.equals("2")){
                 	respContent.setLength(0);
@@ -134,7 +125,7 @@ public class CoreService {
                 		articleList.add(article[i]);
                 	}
 //                	article.setTitle("“支付宝”将成撬动阿里股价的杠杆");
-//                	article.("未来，当上市的阿里巴巴已经亏损，或者濒临亏损，但通过关联交易，即可由小微金服这样的企业向其“输血”，使其当期经营业绩变为优良，从而来远程操纵其股票的涨幅。");
+//                	article.setDescription("未来，当上市的阿里巴巴已经亏损，或者濒临亏损，但通过关联交易，即可由小微金服这样的企业向其“输血”，使其当期经营业绩变为优良，从而来远程操纵其股票的涨幅。");
 //                	article.setPicUrl("http://pan.baidu.com/s/1jGxGgvk");
 //                	article.setUrl("http://chenlin.baijia.baidu.com/article/26182");
 //                	articleList.add(article);
@@ -186,8 +177,9 @@ public class CoreService {
         			if(rs.next()){
         				citycode = rs.getString(1);
         				Weather weather = new Weather();
-            			String buff = weather.getWeatherDetail(citycode);
-            			respContent.append(buff);
+        				respMessage = weather.getWeatherDetail(citycode,fromUserName, toUserName);
+        				return respMessage;
+//            			respContent.append(buff);
         			}else{
         				respContent.append("对不起！没有您所查询的城市天气！");
         			}

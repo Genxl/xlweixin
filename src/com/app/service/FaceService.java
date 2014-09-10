@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,8 +12,6 @@ import java.util.List;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-
-import org.hibernate.mapping.Array;
 
 import com.app.face.Face;
 
@@ -60,7 +57,7 @@ public class FaceService {
 	private static List<Face> faceDetect(String picUrl){
 		List<Face> faces = new ArrayList<Face>();
 		// 拼接Face++人脸检测的请求地址  
-        String queryUrl = "http://apicn.faceplusplus.com/v2/detection/detect?url=URL&api_secret=API_SECRET&api_key=API_KEY";
+        String queryUrl = "http://apicn.faceplusplus.com/v2/detection/detect?api_key=API_KEY&api_secret=API_SECRET&url=URL&attribute=glass,pose,gender,age,race,smiling";
         // 对URL进行编码  
         try {
 			queryUrl = queryUrl.replace("URL", java.net.URLEncoder.encode(picUrl, "UTF-8"));
@@ -70,6 +67,7 @@ public class FaceService {
 		}  
         queryUrl = queryUrl.replace("API_KEY", "620f3a06fa4cab422d99b81bf113105e");  
         queryUrl = queryUrl.replace("API_SECRET", "VHk7xQIEen2AEIOy55uw_Yk5Y3ak-6iE");
+        System.out.println(queryUrl);
         // 调用人脸检测接口  
         String json = httpRequest(queryUrl);  
         // 解析返回json中的Face列表  
@@ -90,7 +88,9 @@ public class FaceService {
             face.setGenderConfidence(attrObject.getJSONObject("gender").getDouble("confidence"));  
             face.setRaceValue(raceConvert(attrObject.getJSONObject("race").getString("value")));  
             face.setRaceConfidence(attrObject.getJSONObject("race").getDouble("confidence"));  
-            face.setSmilingValue(attrObject.getJSONObject("smiling").getDouble("value"));  
+            face.setGlassValue(attrObject.getJSONObject("glass").getString("value"));
+            face.setGlassConfidence(attrObject.getJSONObject("glass").getDouble("confidence"));
+            face.setSmilingValue(attrObject.getJSONObject("smiling").getDouble("value"));
             face.setCenterX(posObject.getJSONObject("center").getDouble("x"));  
             face.setCenterY(posObject.getJSONObject("center").getDouble("y"));  
             faces.add(face);
@@ -142,11 +142,24 @@ public class FaceService {
         StringBuffer buffer = new StringBuffer();  
         // 检测到1张脸  
         if (1 == faceList.size()) {  
-            buffer.append("共检测到 ").append(faceList.size()).append(" 张人脸").append("\n");  
-            for (Face face : faceList) {  
-                buffer.append(face.getRaceValue()).append("人种,");  
-                buffer.append(face.getGenderValue()).append(",");  
-                buffer.append(face.getAgeValue()).append("岁左右").append("\n");  
+            for (Face face : faceList) {
+            	if(face.getAgeValue()>10){
+            		if("女性".equals(face.getGenderValue().toString())){
+                		buffer.append("照片上的人应该是个妹子，我猜她的年龄大概在");
+                	}else{
+                		buffer.append("照片上的人应该是个纯爷们，我猜他的年龄大概在");
+                	}
+            	}else{
+            		if("女性".equals(face.getGenderValue().toString())){
+                		buffer.append("照片上的人应该是个小女孩，我猜她的年龄大概在");
+                	}else{
+                		buffer.append("照片上的人应该是个小男孩，我猜他的年龄大概在");
+                	}
+            	}
+                buffer.append(face.getAgeValue()).append("岁左右。").append("\n"); 
+                if(!"None".equals(face.getGlassValue())){
+                	buffer.append("TA还戴着一副眼镜");
+                }
             }  
         }  
         // 检测到2-10张脸  
@@ -154,7 +167,7 @@ public class FaceService {
             buffer.append("共检测到 ").append(faceList.size()).append(" 张人脸，按脸部中心位置从左至右依次为：").append("\n");  
             for (Face face : faceList) {  
                 buffer.append(face.getRaceValue()).append("人种,");  
-                buffer.append(face.getGenderValue()).append(",");  
+                buffer.append(face.getGenderValue()).append(",");
                 buffer.append(face.getAgeValue()).append("岁左右").append("\n");  
             }  
         }  
@@ -205,7 +218,7 @@ public class FaceService {
      */  
     public static String detect(String picUrl) {  
         // 默认回复信息  
-    	String result = "未识别到人脸，请换一张清晰的照片再试！\r\n或者尝试把照片旋转";  
+    	String result = "未识别到人脸，请换一张清晰正面照片再试！\r\n或者尝试把照片旋转";  
         List<Face> faceList = faceDetect(picUrl);  
         if (!faceList.isEmpty()) {  
             result = makeMessage(faceList);  
@@ -214,7 +227,7 @@ public class FaceService {
     }  
   
     public static void main(String[] args) {  
-        String picUrl = "http://pic11.nipic.com/20101111/6153002_002722872554_2.jpg";  
+        String picUrl = "http://www.faceplusplus.com.cn/wp-content/themes/faceplusplus/assets/img/demo/1.jpg?v=4";  
         System.out.println(detect(picUrl));  
     }
     

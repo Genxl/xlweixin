@@ -11,11 +11,17 @@ import java.net.URL;
 //import java.sql.ResultSet;
 //import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 
 import org.apache.log4j.Logger;
+
+import com.app.message.resp.Article;
+import com.app.message.resp.NewsMessage;
+import com.app.util.MessageUtil;
 //import java.util.Scanner;
 
 //import com.app.util.MySqlDB;
@@ -34,9 +40,19 @@ public class Weather {
     JSONObject info; 
     Logger logger = Logger.getLogger(getClass());
      
-    public String getWeatherDetail(String Cityid){ 
+    public String getWeatherDetail(String Cityid,String fromUserName,String toUserName){
+    	
+    	NewsMessage newsMessage = new NewsMessage();
+    	newsMessage.setToUserName(fromUserName);  
+    	newsMessage.setFromUserName(toUserName);  
+    	newsMessage.setCreateTime(new Date().getTime());  
+    	newsMessage.setMsgType(MessageUtil.RESP_MESSAGE_TYPE_NEWS);  
+    	newsMessage.setFuncFlag(0);
+    	
+    	String respMessage = null;
+    	
         // 解析本机ip地址 
-    	String buff = "";
+//    	String buff = "";
         // 连接中央气象台的API 
         URL url = null;
 		try {
@@ -86,10 +102,44 @@ public class Weather {
     	cal.add(Calendar.DAY_OF_YEAR, 0);
     	Date date = cal.getTime();
     	SimpleDateFormat sf = new SimpleDateFormat("yyyy年MM月dd日");
-    	buff = info.getString("city").toString()+"  "+sf.format(date)+"  "+getWeek(cal.get(Calendar.DAY_OF_WEEK))+"\n"
+    	
+    	List<Article> articleList = new ArrayList<Article>();
+    	
+    	Article articleCity = new Article();
+    	articleCity.setTitle(info.getString("city").toString()+"天气预报");
+    	articleCity.setDescription("");
+    	articleCity.setPicUrl("");
+    	articleCity.setUrl("");
+    	articleList.add(articleCity);
+    	
+    	Article articleTime = new Article();
+    	articleTime.setTitle(sf.format(date)+"  "+getWeek(cal.get(Calendar.DAY_OF_WEEK)));
+    	articleTime.setDescription("");
+    	articleTime.setPicUrl("");
+    	articleTime.setUrl("");
+    	articleList.add(articleTime);
+    	
+    	Article articleTempAndWeather = new Article();
+    	articleTempAndWeather.setTitle(info.getString("temp2").toString()+"~"+info.getString("temp1").toString()+"\n"+info.getString("weather").toString());
+    	articleTempAndWeather.setDescription("");
+    	articleTempAndWeather.setPicUrl("http://xlweixin.ngrok.com/MyWeiXin/images/day/01.png");
+    	articleTempAndWeather.setUrl("");
+    	articleList.add(articleTempAndWeather);
+    	
+    	System.out.println(articleList.size());
+    	System.out.println(articleList.get(0).getTitle());
+    	// 设置图文消息个数  
+        newsMessage.setArticleCount(articleList.size());  
+        // 设置图文消息包含的图文集合  
+        newsMessage.setArticles(articleList);  
+        // 将图文消息对象转换成xml字符串  
+        respMessage = MessageUtil.newsMessageToXml(newsMessage);
+        return respMessage;
+    	
+//    	buff = info.getString("city").toString()+"  "+sf.format(date)+"  "+getWeek(cal.get(Calendar.DAY_OF_WEEK))+"\n"
 //    		+"发布时间："+info.getString("fchh").toString()+"\n"
-    		+"天气情况："+info.getString("weather").toString()+"\n"
-    		+"温     度："+info.getString("temp2").toString()+"~"+info.getString("temp1").toString();
+//    		+"天气情况："+info.getString("weather").toString()+"\n"
+//    		+"温     度："+info.getString("temp2").toString()+"~"+info.getString("temp1").toString();
     
 //        //得到1到6天的天气情况
 //        List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
@@ -125,7 +175,7 @@ public class Weather {
 ////    	   System.out.println(wMap.get("city")+"\t"+wMap.get("date_y")+"\t"+wMap.get("week")+"\t"
 ////    			   +wMap.get("weather")+"\t"+wMap.get("temp")+"\t"+wMap.get("index_uv"));
 //       }
-		return buff;
+//		return buff;
        
     } 
     private String getWeek(int iw){
