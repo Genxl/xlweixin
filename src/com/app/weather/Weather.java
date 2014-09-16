@@ -6,41 +6,39 @@ import java.io.InputStreamReader;
 import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-//import java.net.URLConnection;
-//import java.sql.PreparedStatement;
-//import java.sql.ResultSet;
-//import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
 
 import com.app.message.resp.Article;
 import com.app.message.resp.NewsMessage;
 import com.app.util.MessageUtil;
-//import java.util.Scanner;
 
-//import com.app.util.MySqlDB;
-
-import net.sf.json.JSONObject;
-/**
- * 得到未来6天的天气(含今天)
- * @author Chewl
- *
- */
 public class Weather { 
     HttpURLConnection  connectionData = null; 
     StringBuffer sb = new StringBuffer();
     BufferedReader br;
-    JSONObject jsonData; 
+    JSONObject jsonData;
+    JSONArray resultArray;
+    JSONArray indexArray;
+    JSONArray weatherArray;
     JSONObject info; 
+    JSONObject resultObject;
+    JSONObject indexObject;
+    JSONObject weatherObject;
+    
     Logger logger = Logger.getLogger(getClass());
      
-    public String getWeatherDetail(String Cityid,String fromUserName,String toUserName){
+    public String getWeatherDetailFromAPI(String Cityid,String fromUserName,String toUserName){
     	
     	NewsMessage newsMessage = new NewsMessage();
     	newsMessage.setToUserName(fromUserName);  
@@ -193,7 +191,121 @@ public class Weather {
 		}
     	return weekStr;
     }
+    
+    @SuppressWarnings("deprecation")
+	public String getWeatherDetailFromBaiDuWeatherAPI(String City,String fromUserName,String toUserName){
+    	
+    	NewsMessage newsMessage = new NewsMessage();
+    	newsMessage.setToUserName(fromUserName);  
+    	newsMessage.setFromUserName(toUserName);  
+    	newsMessage.setCreateTime(new Date().getTime());  
+    	newsMessage.setMsgType(MessageUtil.RESP_MESSAGE_TYPE_NEWS);  
+    	newsMessage.setFuncFlag(0);
+    	
+    	String respMessage = null;
+    	
+        // 连接百度天气预报的API 
+        URL url = null;
+		try {
+			//对城市名进行编码
+			City = java.net.URLEncoder.encode(City, "UTF-8");
+			url = new URL("http://api.map.baidu.com/telematics/v3/weather?location="+City+"&output=json&ak=R0Gh5BSWAD51sEGL9jPcD6mY");
+	        connectionData = (HttpURLConnection) url.openConnection();
+	        connectionData.setRequestProperty("Accept-Charset","UTF-8");//解决中文乱码  
+	        connectionData.setRequestProperty("Content-type","UTF-8");//解决中文乱码  
+	        connectionData.setRequestProperty("contentType","UTF-8");//解决中文乱码 
+	        connectionData.setDoInput(true);  
+	        connectionData.setRequestMethod("GET");   
+//	        System.out.println(url);
+            // 将返回的输入流转换成字符串  
+            InputStream inputStream = connectionData.getInputStream();  
+            InputStreamReader inputStreamReader = new InputStreamReader(inputStream, "utf-8");  
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);  
+  
+            String str = null;  
+            while ((str = bufferedReader.readLine()) != null) {  
+                sb.append(str);
+            }  
+            bufferedReader.close();  
+            inputStreamReader.close();  
+            // 释放资源  
+            inputStream.close();  
+            inputStream = null;  
+            connectionData.disconnect();  
+		} catch (ConnectException ce) {
+			// TODO Auto-generated catch block
+			logger.error("Connect Time out "+ce);
+			ce.printStackTrace();
+        } catch (Exception e) {
+			// TODO Auto-generated catch block
+        	logger.error("Time out "+e);
+			e.printStackTrace();
+		}
+        
+        String datas = sb.toString();  
+//        System.out.println(datas);
+        jsonData = JSONObject.fromObject(datas); 
+        resultArray = jsonData.getJSONArray("results");
+        Date date = new Date();
+        String picurl = "";
+        if(date.getHours() >= 6 &&date.getHours()< 18){
+        	picurl = "dayPictureUrl";
+        }else{
+        	picurl = "nightPictureUrl";
+        }
+        List<Article> articleList = new ArrayList<Article>();
+    	
+//        System.out.println(jsonArray.size());
+        for (int i = 0; i < resultArray.size(); i++) {
+        	resultObject = resultArray.getJSONObject(i);
+        	Article articleCity = new Article();
+        	articleCity.setTitle(resultObject.getString("currentCity").toString()+"天气预报");
+        	articleCity.setDescription("");
+        	articleCity.setPicUrl("");
+        	articleCity.setUrl("");
+        	articleList.add(articleCity);
+//        	indexArray = resultObject.getJSONArray("index");
+        	weatherArray = resultObject.getJSONArray("weather_data");
+        	
+//        	for(int j = 0;j < indexArray.size(); j++){
+//        		indexObject = indexArray.getJSONObject(j);
+//        		System.out.println(indexObject.getString("title"));
+//        	}
+        	
+        	weatherObject = weatherArray.getJSONObject(0);
+    		Article articleInfo1 = new Article();
+    		articleInfo1.setTitle(weatherObject.getString("date")+"\r\n"+weatherObject.getString("weather")+"\t"+weatherObject.getString("wind"));
+    		articleInfo1.setDescription("");
+    		articleInfo1.setPicUrl(weatherObject.getString(picurl));
+    		articleInfo1.setUrl("");
+    		articleList.add(articleInfo1);
+    		
+    		Article[] article = new Article[weatherArray.size()];
+        	for(int k = 1;k < weatherArray.size(); k++){
+        		weatherObject = weatherArray.getJSONObject(k);
+        		article[k] = new Article();
+        		article[k].setTitle(weatherObject.getString("date")+"\r\n"+weatherObject.getString("weather")+"\t"+weatherObject.getString("wind")+"\t"+weatherObject.getString("temperature"));
+        		article[k].setDescription("");
+        		article[k].setPicUrl(weatherObject.getString(picurl));
+        		article[k].setUrl("");
+        		articleList.add(article[k]);
+//        		System.out.println(weatherObject.getString("date"));
+        	}
+        } 	
+//    	System.out.println(articleList.size());
+//    	System.out.println(articleList.get(0).getTitle());
+    	// 设置图文消息个数  
+        newsMessage.setArticleCount(articleList.size());  
+        // 设置图文消息包含的图文集合  
+        newsMessage.setArticles(articleList);  
+        // 将图文消息对象转换成xml字符串  
+        respMessage = MessageUtil.newsMessageToXml(newsMessage);
+        return respMessage;
+        
+    } 
 //    public static void main(String[] args) {
+//    	Weather weather = new Weather();
+//    	weather.getWeatherDetailFromBaiDuWeatherAPI("北京", null, null);
 //    	String citycode = null;
 //    	MySqlDB conn = null;
 //    	PreparedStatement pstmt = null;

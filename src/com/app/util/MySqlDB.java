@@ -19,12 +19,12 @@ public class MySqlDB {
 	  public MySqlDB() throws SQLException,ClassNotFoundException{
 	    try
 	    {
-	    	String url="jdbc:mysql://localhost:3306/weathercode";
-	    	Class.forName("com.mysql.jdbc.Driver");
-	    	conn = DriverManager.getConnection(url,"root","");
-//	    	String url="jdbc:mysql://sqld.duapp.com:4050/lrWMaGIxwLIaYldaNDbk";
-//		    Class.forName("com.mysql.jdbc.Driver");
-//		    conn = DriverManager.getConnection(url,"4EUWLRo9arSzSO3PY1YCpi4Q","Sj695uxdAT9oe0E8tjeu5NUy6dBdc3rR");
+//	    	String url="jdbc:mysql://localhost:3306/weathercode";
+//	    	Class.forName("com.mysql.jdbc.Driver");
+//	    	conn = DriverManager.getConnection(url,"root","");
+	    	String url="jdbc:mysql://sqld.duapp.com:4050/lrWMaGIxwLIaYldaNDbk";
+		    Class.forName("com.mysql.jdbc.Driver");
+		    conn = DriverManager.getConnection(url,"4EUWLRo9arSzSO3PY1YCpi4Q","Sj695uxdAT9oe0E8tjeu5NUy6dBdc3rR");
 		    stmt = conn.createStatement();
 	    }
 	    catch(SQLException e)

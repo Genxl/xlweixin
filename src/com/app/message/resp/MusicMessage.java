@@ -5,13 +5,13 @@ package com.app.message.resp;
  */
 public class MusicMessage extends BaseMessage {
 	
-	private Music music;
+	private Music Music;
 
 	public Music getMusic() {
-		return music;
+		return Music;
 	}
 
-	public void setMusic(Music music) {
-		this.music = music;
+	public void setMusic(Music Music) {
+		this.Music = Music;
 	}
 }

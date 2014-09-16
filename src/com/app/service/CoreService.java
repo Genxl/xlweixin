@@ -11,14 +11,17 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
 
+import com.app.hzDict.nameTogether;
 import com.app.laughing.LaughingService;
 import com.app.message.resp.TextMessage;
+import com.app.util.LearnEnglish;
 import com.app.util.MessageUtil;
 import com.app.util.MySqlDB;
 import com.app.util.MyWeiXinUtil;
 import com.app.util.WeiXinTime;
 import com.app.util.newsChoice;
 import com.app.weather.Weather;
+import com.app.xiaoqiuqiu.xqqChat;
 
 /**
  * 核心处理类
@@ -54,34 +57,25 @@ public class CoreService {
             //文本消息  
             if (msgType.equals(MessageUtil.REQ_MESSAGE_TYPE_TEXT)) {
             	MyWeiXinUtil mywxutil = new MyWeiXinUtil();
-//            	respContent.setLength(0);
-//              respContent.append("您发送的是文本消息！"); 
-                if(!content.equals("1") || !content.equals("2") || !content.equals("3") || !content.endsWith("天气") || !mywxutil.isQqFace(content)
-                		|| !content.equals("A")||!content.equals("a")
-                		|| !content.equals("B")||!content.equals("b")
-                		|| !content.equals("C")||!content.equals("c")
-                		|| !content.equals("D")||!content.equals("d")
-                		|| !content.equals("E")||!content.equals("e")
-                		|| !content.equals("F")||!content.equals("f")
-                		|| !content.equals("G")||!content.equals("g")
-                		|| !content.equals("H")||!content.equals("h")){
+            	if(content.equals("?")||content.equals("？")){
                 	WeiXinTime wxt = new WeiXinTime();
                 	respContent.setLength(0);
                 	respContent.append("欢迎使用XL的微信公众平台！");
                 	respContent.append("\r\n"+wxt.getTime());
                 	respContent.append("\r\n1、冷笑话");
                 	respContent.append("\r\n2、看图文");
-                	respContent.append("\r\n3、听音乐");
-                	respContent.append("\r\n4、查天气");
+                	respContent.append("\r\n3、查天气");
+                	respContent.append("\r\n4、每日英语");
                 	respContent.append("\r\n5、人脸检测");
+                	respContent.append("\r\n6、姓名匹配");
                 	respContent.append("\r\n其他、请直接输入文字信息");
                 }
-                if(content.equals("1")){
+            	else if(content.equals("1")){
                 	respContent.setLength(0);
                 	LaughingService laughing = new LaughingService();
                 	respContent.append(laughing.getLaugh());
                 }
-                if(content.equals("2")){
+            	else if(content.equals("2")){
                 	respContent.setLength(0);
                 	respContent.append("看什么我做主！请直接回复字母");
                 	respContent.append("\r\n A、国内新闻\t B、国际新闻");
@@ -147,23 +141,42 @@ public class CoreService {
 //                	articleList.add(article1.......n);
 //                	respContent.append("开发中...");
                 }
-                if(content.equals("3")){
-                	respContent.setLength(0);
-                	respContent.append("<a href=\"http://www.baidu.com\">来首Music</a>");
-                }
-                if(content.equals("4")){
+            	else if(content.equals("3")){
                 	respContent.setLength(0);
                 	respContent.append("您需要查询哪里的天气呢?");
                 	respContent.append("\r\n回复：城市名称+天气");
                 	respContent.append("\r\n例如：新会天气");
                 }
-                if(content.equals("5")){
+            	else if(content.equals("4")){
+                	LearnEnglish le = new LearnEnglish();
+                	respMessage = le.getEnglishEveryDay(fromUserName, toUserName);
+                	return respMessage;
+                }
+            	else if(content.equals("听力")){
+            		System.out.println("听力");
+            		LearnEnglish le = new LearnEnglish();
+                	respMessage = le.getListening(fromUserName, toUserName);
+                	return respMessage;
+            	}
+            	else if(content.equals("5")){
                 	respContent.setLength(0);
                 	respContent.append("人脸检测使用指南").append("\n\n");  
                 	respContent.append("发送一张清晰的照片，就能帮你分析出种族、年龄、性别等信息").append("\n");  
                 	respContent.append("赶紧来试试吧");  
                 }
-                if(content.endsWith("天气")){
+            	else if(content.equals("6")){
+            		respContent.setLength(0);
+            		respContent.append("人生因爱情而改变，他是你最爱的人吗？你们相爱会有好的结局吗？发送CS+姓名(男)配姓名(女)，如CS 郭靖配黄蓉");
+            	}
+            	else if(content.trim().toUpperCase().startsWith("CS") && content.contains("配")){
+            		respContent.setLength(0);
+            		nameTogether nt = new nameTogether();
+//            		System.out.println(content.trim().toUpperCase().replaceAll("CS", "").trim());
+            		respContent.append(nt.getTestResult(content.trim().toUpperCase().replaceAll("CS", "").trim()));
+            		respContent.append("\r\n");
+            		respContent.append("以上仅供娱乐");
+            	}
+            	else if(content.endsWith("天气")){
                 	respContent.setLength(0);
                 	String citycode = null;
                 	content = content.substring(0, content.indexOf("天气"));
@@ -177,18 +190,19 @@ public class CoreService {
         			if(rs.next()){
         				citycode = rs.getString(1);
         				Weather weather = new Weather();
-        				respMessage = weather.getWeatherDetail(citycode,fromUserName, toUserName);
+//        				respMessage = weather.getWeatherDetailFromAPI(citycode,fromUserName, toUserName);
+        				respMessage = weather.getWeatherDetailFromBaiDuWeatherAPI(content, fromUserName, toUserName);
         				return respMessage;
 //            			respContent.append(buff);
         			}else{
         				respContent.append("对不起！没有您所查询的城市天气！");
         			}
                 }
-                if(mywxutil.isQqFace(content)){
+            	else if(mywxutil.isQqFace(content)){
                 	textMessage.setContent(content);
                 }
                 
-                if(content.equals("A")||content.equals("a")
+            	else if(content.equals("A")||content.equals("a")
                 		||content.equals("B")||content.equals("B")
                 		||content.equals("C")||content.equals("c")
                 		||content.equals("D")||content.equals("d")
@@ -200,6 +214,18 @@ public class CoreService {
                 	respMessage = newschoice.getNewsChoose(content, fromUserName, toUserName);
                 	return respMessage;
                 }
+            	else{
+            		xqqChat chat = new xqqChat();
+            		respContent.setLength(0);
+//            		System.out.println(chat.chatWithXQQ(content, fromUserName));
+                	if("主人还没给我设置这类话题的回复，你帮我悄悄的告诉他吧~".equals(chat.chatWithXQQ(content, fromUserName))){
+                		respContent.append(chat.chatWithXQQ(content, fromUserName));
+                		respContent.append("\r\n");
+                		respContent.append("或者回复”?“可以获得更多帮助哦\ue056");
+                	}else{
+                		respContent.append(chat.chatWithXQQ(content, fromUserName));
+                	}
+            	}
             }  
             // 图片消息  
             else if (msgType.equals(MessageUtil.REQ_MESSAGE_TYPE_IMAGE)) {

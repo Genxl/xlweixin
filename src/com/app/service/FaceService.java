@@ -67,7 +67,7 @@ public class FaceService {
 		}  
         queryUrl = queryUrl.replace("API_KEY", "620f3a06fa4cab422d99b81bf113105e");  
         queryUrl = queryUrl.replace("API_SECRET", "VHk7xQIEen2AEIOy55uw_Yk5Y3ak-6iE");
-        System.out.println(queryUrl);
+//        System.out.println(queryUrl);
         // 调用人脸检测接口  
         String json = httpRequest(queryUrl);  
         // 解析返回json中的Face列表  
